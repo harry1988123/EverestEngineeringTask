@@ -1,0 +1,114 @@
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+     <div class="card m-3">
+         <h5 class="card-header">Total delivery cost</h5>
+         <div class="card-body">
+             <div class="form-row">
+                 <div class="form-group">
+                     <label>Base delivery cost</label>
+                     <input type="text" class="form-control" formControlName="base_delivery_cost" [ngClass]="{ 'is-invalid': submitted && f.base_delivery_cost.errors }"/>
+                     <div *ngIf="submitted && f.base_delivery_cost.errors" class="invalid-feedback">
+                        <div *ngIf="f.base_delivery_cost.errors.required">Base delivery cost is required</div>
+                    </div>
+                 </div>
+                 <br>
+                 <br>
+                 <div class="form-group">
+                     <label>No of Packages</label>
+                     <select formControlName="no_of_packges" class="form-control" (change)="onChangePackage($event)" 
+                     [ngClass]="{ 'is-invalid': submitted && f.no_of_packges.errors }">
+                        <option value=""></option>
+                        <option *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]">{{i}}</option>
+                     </select>
+                     <div *ngIf="submitted && f.no_of_packges.errors" class="invalid-feedback">
+                        <div *ngIf="f.no_of_packges.errors.required">Number of Packages is required</div>
+                    </div>
+                 </div>
+             </div>
+         </div>
+
+         <div *ngFor="let package of t.controls; let i = index" class="list-group list-group-flush">
+            <div class="list-group-item">
+                <h5 class="card-title">Package {{i + 1}}</h5>
+                <div [formGroup]="package" class="form-row">
+                    <div class="form-group col-6">
+                        <label>Package Id</label>
+                        <input type="text" formControlName="pkg_id" class="form-control" [ngClass]="{ 'is-invalid': submitted && package.controls.pkg_id.errors }" />
+                        <div *ngIf="submitted && package.controls.pkg_id.errors" class="invalid-feedback">
+                            <div *ngIf="package.controls.pkg_id.errors.required">Package Id is required</div>
+                        </div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>Package weight</label>
+                        <input type="text" formControlName="pkg_weight_in_kgs" class="form-control" [ngClass]="{ 'is-invalid': submitted && package.controls.pkg_weight_in_kgs.errors }" />
+                        <div *ngIf="submitted && package.controls.pkg_weight_in_kgs.errors" class="invalid-feedback">
+                            <div *ngIf="package.controls.pkg_weight_in_kgs.errors.required">Package weight is required</div>
+                            <div *ngIf="package.controls.pkg_weight_in_kgs.errors.required">Package weight must be valid in Kgs</div>
+                        </div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>Distance in Kms</label>
+                        <input type="text" formControlName="distance_in_kms" class="form-control" [ngClass]="{ 'is-invalid': submitted && package.controls.distance_in_kms.errors }" />
+                        <div *ngIf="submitted && package.controls.distance_in_kms.errors" class="invalid-feedback">
+                            <div *ngIf="package.controls.distance_in_kms.errors.required">Distance is required</div>
+                        </div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>Offer code</label>
+                        <input type="text" formControlName="offer_code" class="form-control"/> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <button class="btn btn-primary mr-1">Confirm</button>
+            <button class="btn btn-secondary mr-1" type="reset" (click)="onReset()">Reset</button>
+            <button class="btn btn-secondary" type="button" (click)="onClear()">Clear</button>
+        </div>
+     </div>
+</form>
+<br>
+
+<div class="output-section">
+    <h3 *ngIf="result">Explanation</h3>
+    <div class="cards">
+        <ng-container *ngFor="let item of result; let i = index;">
+            <div class="card">
+                <div class="test-case">PKG {{i+1}} : Testcase </div>
+                <div class="details-section">
+                    <div class="given-info">
+                        <div class="base-delivery-cost">Base.delivery cost: <span class="font-weight-text" > {{ item.base_delivery_cost }} </span> </div>
+                        <div class="w-d">
+                            <div class="weight">Weight: <span class="font-weight-text"> {{item.pkg_weight_in_kgs}}</span> </div> | <div class="distance">Distance : <span class="font-weight-text"> {{item.distance_in_kms}} </span></div>
+                        </div>
+                        <div class="offer-code">Offer Code: <span class="font-weight-text" >{{ item.offer_code }}</span> </div> 
+                    </div>
+                    <div class="discription-section">
+                        <div class="calculated-info">
+                            <div class="delivery-cost">Delivery Cost <span class="font-weight-text">{{ item.DeliveryCost | number:'1.0-2' }} </span> </div>
+                            <div class="font-weight-text">{{item.calculationString}}</div>
+                        </div>
+                        <div class="discount-details-section">
+                            <div class="outer-div">
+                                <div>Discount</div><span class="font-weight-text">-{{item.Discount_amount | number:'1.0-2'}}</span>
+                            </div>
+                            <ng-container *ngIf="item.Discount_amount == 0">
+                                <div class="secondary-text">(Offer not applicable as criteria not met)</div>  
+                            </ng-container>
+                            <ng-container *ngIf="item.Discount_amount != 0">
+                                <div class="secondary-text">( {{ item.PercentageOfDiscount }}% of {{item.DeliveryCost}}) i.e; Delivery Cost)</div>
+                            </ng-container>
+                        </div>
+                        <div class="total-cost">
+                            <div class="primary-text">Total Cost</div><div class="amount"> <span class="font-weight-text">{{item.Amount_to_be_paid | number:'1.0-2'}}</span></div> 
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>        
+        </ng-container>
+    </div>
+    
+</div>
+
+<!-- {{ userForm.value | json}}
+{{ t.value | json }} -->
